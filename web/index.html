@@ -101,6 +101,36 @@
               <input id="maxPrice" type="number" min="0" placeholder="500000" />
             </label>
           </div>
+          <div class="columns">
+            <label class="field">
+              <span>Мин. спальни</span>
+              <input id="minBedrooms" type="number" min="0" placeholder="1" />
+            </label>
+            <label class="field">
+              <span>Макс. спальни</span>
+              <input id="maxBedrooms" type="number" min="0" placeholder="3" />
+            </label>
+          </div>
+          <div class="columns">
+            <label class="field">
+              <span>Мин. санузлы</span>
+              <input id="minBathrooms" type="number" min="0" placeholder="1" />
+            </label>
+            <label class="field">
+              <span>Макс. санузлы</span>
+              <input id="maxBathrooms" type="number" min="0" placeholder="2" />
+            </label>
+          </div>
+          <div class="columns">
+            <label class="field">
+              <span>Мин. площадь (м²)</span>
+              <input id="minArea" type="number" min="0" placeholder="30" />
+            </label>
+            <label class="field">
+              <span>Макс. площадь (м²)</span>
+              <input id="maxArea" type="number" min="0" placeholder="120" />
+            </label>
+          </div>
           <label class="field">
             <span>Ключевые слова в заголовке</span>
             <input id="titleKeywords" type="text" placeholder="departamento, monoambiente" />
@@ -108,6 +138,34 @@
           <label class="field">
             <span>Ключевые слова в локации</span>
             <input id="locationKeywords" type="text" placeholder="palermo, recoleta" />
+          </label>
+          <label class="field">
+            <span>Исключить по заголовку</span>
+            <input id="titleExclude" type="text" placeholder="temporal, hostel" />
+          </label>
+          <label class="field">
+            <span>Исключить по локации</span>
+            <input id="locationExclude" type="text" placeholder="zona industrial" />
+          </label>
+          <label class="field">
+            <span>Ключевые слова типа жилья</span>
+            <input id="propertyKeywords" type="text" placeholder="casa, departamento" />
+          </label>
+        </section>
+
+        <section class="card">
+          <h2>Дополнительные источники</h2>
+          <p class="helper">
+            Укажите JSON-массив источников (селекторы и базовые URL) — парсер обработает
+            все сайты по очереди.
+          </p>
+          <label class="field">
+            <span>Источники (JSON)</span>
+            <textarea
+              id="additionalSources"
+              rows="6"
+              placeholder='[{\"base_url\": \"https://example.com/sales\", \"listing_type\": \"sale\", \"listings_selector\": \".card\", \"title_selector\": \".card__title\", \"price_selector\": \".card__price\", \"location_selector\": \".card__location\", \"url_selector\": \"a.card__link\"}]'
+            ></textarea>
           </label>
         </section>
 

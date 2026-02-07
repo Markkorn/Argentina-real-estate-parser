@@ -17,5 +17,14 @@
   "min_price": 300000,
   "max_price": null,
   "title_keywords_include": ["Departamento"],
-  "location_keywords_include": ["Palermo"]
+  "location_keywords_include": ["Palermo"],
+  "title_keywords_exclude": [],
+  "location_keywords_exclude": [],
+  "property_keywords_include": ["departamento"],
+  "min_bedrooms": null,
+  "max_bedrooms": null,
+  "min_bathrooms": null,
+  "max_bathrooms": null,
+  "min_area_m2": null,
+  "max_area_m2": null
 }

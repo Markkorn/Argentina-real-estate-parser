@@ -28,14 +28,20 @@ class Listing:
     location: str
     url: str
     listing_type: str
+    bedrooms: int | None
+    bathrooms: int | None
+    area_m2: int | None
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "title": self.title,
             "price": self.price,
             "location": self.location,
             "url": self.url,
             "listing_type": self.listing_type,
+            "bedrooms": self.bedrooms,
+            "bathrooms": self.bathrooms,
+            "area_m2": self.area_m2,
         }
 
 
@@ -60,6 +66,15 @@ class ParserConfig:
     max_price: int | None
     title_keywords_include: list[str]
     location_keywords_include: list[str]
+    title_keywords_exclude: list[str]
+    location_keywords_exclude: list[str]
+    property_keywords_include: list[str]
+    min_bedrooms: int | None
+    max_bedrooms: int | None
+    min_bathrooms: int | None
+    max_bathrooms: int | None
+    min_area_m2: int | None
+    max_area_m2: int | None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ParserConfig":
@@ -85,6 +100,19 @@ class ParserConfig:
             location_keywords_include=[
                 kw.lower() for kw in data.get("location_keywords_include", [])
             ],
+            title_keywords_exclude=[kw.lower() for kw in data.get("title_keywords_exclude", [])],
+            location_keywords_exclude=[
+                kw.lower() for kw in data.get("location_keywords_exclude", [])
+            ],
+            property_keywords_include=[
+                kw.lower() for kw in data.get("property_keywords_include", [])
+            ],
+            min_bedrooms=data.get("min_bedrooms"),
+            max_bedrooms=data.get("max_bedrooms"),
+            min_bathrooms=data.get("min_bathrooms"),
+            max_bathrooms=data.get("max_bathrooms"),
+            min_area_m2=data.get("min_area_m2"),
+            max_area_m2=data.get("max_area_m2"),
         )
 
 
@@ -165,9 +193,44 @@ def parse_price_amount(price_text: str) -> int | None:
     return int("".join(digits))
 
 
+def parse_detail_value(text: str, patterns: list[str]) -> int | None:
+    lowered = text.lower()
+    for pattern in patterns:
+        match = re.search(pattern, lowered)
+        if match:
+            return int(match.group(1))
+    return None
+
+
+def parse_listing_details(text: str) -> tuple[int | None, int | None, int | None]:
+    bedrooms = parse_detail_value(
+        text,
+        [
+            r"(\d+)\s*(dormitorios|dorms|dorm|habitaciones|hab|bedrooms|beds)",
+            r"(\d+)\s*(ambientes|ambientes)",
+        ],
+    )
+    bathrooms = parse_detail_value(
+        text,
+        [r"(\d+)\s*(baños|banos|bathrooms|baths|bath)"],
+    )
+    area = parse_detail_value(
+        text,
+        [r"(\d+)\s*(m2|m²|mts2|mts|metros)"],
+    )
+    return bedrooms, bathrooms, area
+
+
 def has_keywords(text: str, keywords: list[str]) -> bool:
     if not keywords:
         return True
+    lowered = text.lower()
+    return any(keyword in lowered for keyword in keywords)
+
+
+def has_excluded_keywords(text: str, keywords: list[str]) -> bool:
+    if not keywords:
+        return False
     lowered = text.lower()
     return any(keyword in lowered for keyword in keywords)
 
@@ -192,12 +255,79 @@ def matches_filters(listing: Listing, config: ParserConfig) -> bool:
         return False
     if not has_keywords(listing.location, config.location_keywords_include):
         return False
+    if has_excluded_keywords(listing.title, config.title_keywords_exclude):
+        return False
+    if has_excluded_keywords(listing.location, config.location_keywords_exclude):
+        return False
+    if config.property_keywords_include:
+        combined_text = f"{listing.title} {listing.location}"
+        if not has_keywords(combined_text, config.property_keywords_include):
+            return False
+    if listing.bedrooms is not None:
+        if config.min_bedrooms is not None and listing.bedrooms < config.min_bedrooms:
+            return False
+        if config.max_bedrooms is not None and listing.bedrooms > config.max_bedrooms:
+            return False
+    elif config.min_bedrooms is not None or config.max_bedrooms is not None:
+        return False
+    if listing.bathrooms is not None:
+        if config.min_bathrooms is not None and listing.bathrooms < config.min_bathrooms:
+            return False
+        if config.max_bathrooms is not None and listing.bathrooms > config.max_bathrooms:
+            return False
+    elif config.min_bathrooms is not None or config.max_bathrooms is not None:
+        return False
+    if listing.area_m2 is not None:
+        if config.min_area_m2 is not None and listing.area_m2 < config.min_area_m2:
+            return False
+        if config.max_area_m2 is not None and listing.area_m2 > config.max_area_m2:
+            return False
+    elif config.min_area_m2 is not None or config.max_area_m2 is not None:
+        return False
     return True
 
 
-def load_config(path: Path) -> ParserConfig:
+def build_source_configs(data: dict[str, Any]) -> list[ParserConfig]:
+    if "sources" not in data:
+        return [ParserConfig.from_dict(data)]
+
+    shared: dict[str, Any] = {
+        key: value
+        for key, value in data.items()
+        if key
+        not in {
+            "sources",
+            "base_url",
+            "page_param",
+            "start_page",
+            "end_page",
+            "local_html_path",
+            "listing_type",
+            "listings_selector",
+            "title_selector",
+            "price_selector",
+            "location_selector",
+            "url_selector",
+            "url_attribute",
+            "headers",
+            "sleep_seconds",
+        }
+    }
+    shared_headers = data.get("headers", {})
+    shared_sleep = data.get("sleep_seconds", 0)
+
+    configs: list[ParserConfig] = []
+    for source in data.get("sources", []):
+        merged = {**shared, **source}
+        merged["headers"] = {**shared_headers, **source.get("headers", {})}
+        merged["sleep_seconds"] = source.get("sleep_seconds", shared_sleep)
+        configs.append(ParserConfig.from_dict(merged))
+    return configs
+
+
+def load_config(path: Path) -> list[ParserConfig]:
     data = json.loads(path.read_text(encoding="utf-8"))
-    return ParserConfig.from_dict(data)
+    return build_source_configs(data)
 
 
 def build_page_url(base_url: str, page_param: str, page: int) -> tuple[str, dict[str, Any]]:
@@ -221,12 +351,18 @@ def parse_listings(html: str, config: ParserConfig) -> Iterable[Listing]:
                 href = link.get(config.url_attribute, "")
             url = urljoin(config.base_url, href)
             if title or price or location or url:
+                bedrooms, bathrooms, area_m2 = parse_listing_details(
+                    f"{title} {location}"
+                )
                 yield Listing(
                     title=title,
                     price=price,
                     location=location,
                     url=url,
                     listing_type=config.listing_type,
+                    bedrooms=bedrooms,
+                    bathrooms=bathrooms,
+                    area_m2=area_m2,
                 )
         return
 
@@ -244,12 +380,16 @@ def parse_listings(html: str, config: ParserConfig) -> Iterable[Listing]:
         href = link_node.attrs.get(config.url_attribute, "") if link_node else ""
         url = urljoin(config.base_url, href)
         if title or price or location or url:
+            bedrooms, bathrooms, area_m2 = parse_listing_details(f"{title} {location}")
             yield Listing(
                 title=title,
                 price=price,
                 location=location,
                 url=url,
                 listing_type=config.listing_type,
+                bedrooms=bedrooms,
+                bathrooms=bathrooms,
+                area_m2=area_m2,
             )
 
 
@@ -322,9 +462,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
-    config = load_config(args.config)
-    total = run_parser(config)
-    print(f"Saved {total} listings to {config.output_path}")
+    configs = load_config(args.config)
+    total = 0
+    output_paths = set()
+    for config in configs:
+        total += run_parser(config)
+        output_paths.add(config.output_path)
+    outputs = ", ".join(sorted(output_paths))
+    print(f"Saved {total} listings to {outputs}")
 
 
 if __name__ == "__main__":

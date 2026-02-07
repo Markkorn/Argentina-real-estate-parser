@@ -19,5 +19,14 @@
   "min_price": null,
   "max_price": null,
   "title_keywords_include": [],
-  "location_keywords_include": []
+  "location_keywords_include": [],
+  "title_keywords_exclude": [],
+  "location_keywords_exclude": [],
+  "property_keywords_include": [],
+  "min_bedrooms": null,
+  "max_bedrooms": null,
+  "min_bathrooms": null,
+  "max_bathrooms": null,
+  "min_area_m2": null,
+  "max_area_m2": null
 }

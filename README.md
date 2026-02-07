@@ -29,6 +29,10 @@ python -m http.server 8000 --directory web
 
 Далее перейдите на `http://localhost:8000`, заполните параметры и скачайте готовый JSON.
 
+## Несколько источников (мультисайт)
+
+Если нужно парсить несколько сайтов (и аренду, и покупку), используйте массив `sources` в конфиге. Пример — `config/multi_source_example.json`. Каждому источнику задаются свои селекторы и `listing_type`, а фильтры остаются общими.
+
 ## Рекомендуемый вариант при блокировке PyPI
 
 Если доступ к PyPI блокируется прокси, самый простой вариант — запускать локальный прогон с `config/local_config.json`. Он не требует установки зависимостей и подтверждает, что парсер работает на примере HTML‑файла. После этого уже можно настраивать прокси или внутренний индекс Python‑пакетов для реальных сайтов.
@@ -51,7 +55,16 @@ python -m http.server 8000 --directory web
   "min_price": 200000,
   "max_price": 500000,
   "title_keywords_include": ["departamento", "monoambiente"],
-  "location_keywords_include": ["palermo", "recoleta"]
+  "location_keywords_include": ["palermo", "recoleta"],
+  "title_keywords_exclude": ["temporal"],
+  "location_keywords_exclude": [],
+  "property_keywords_include": ["departamento", "casa"],
+  "min_bedrooms": 1,
+  "max_bedrooms": null,
+  "min_bathrooms": null,
+  "max_bathrooms": null,
+  "min_area_m2": 30,
+  "max_area_m2": null
 }
 ```
 
@@ -87,6 +100,10 @@ python src/rentals_parser.py --config config/local_config.json
    - `min_price` / `max_price` — числовой диапазон цены (все цифры из строки цены будут объединены).
    - `title_keywords_include` — ключевые слова, которые должны встречаться в заголовке.
    - `location_keywords_include` — ключевые слова, которые должны встречаться в локации.
+   - `title_keywords_exclude` / `location_keywords_exclude` — исключающие слова.
+   - `property_keywords_include` — ключевые слова, которые должны встретиться в названии или локации.
+   - `min_bedrooms` / `max_bedrooms`, `min_bathrooms` / `max_bathrooms` — фильтр по количеству комнат/санузлов.
+   - `min_area_m2` / `max_area_m2` — фильтр по площади (м²), если она встречается в тексте объявления.
 
 ## Формат результата
 
