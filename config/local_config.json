@@ -1,0 +1,21 @@
+{
+  "base_url": "https://example.com",
+  "page_param": "page",
+  "start_page": 1,
+  "end_page": 1,
+  "local_html_path": "config/local_example.html",
+  "listing_type": "rent",
+  "listings_selector": ".listing-card",
+  "title_selector": ".listing-card__title",
+  "price_selector": ".listing-card__price",
+  "location_selector": ".listing-card__location",
+  "url_selector": ".listing-card__link",
+  "url_attribute": "href",
+  "headers": {},
+  "sleep_seconds": 0,
+  "output_path": "output/local_listings.jsonl",
+  "min_price": 300000,
+  "max_price": null,
+  "title_keywords_include": ["Departamento"],
+  "location_keywords_include": ["Palermo"]
+}

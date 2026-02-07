@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Argentina Real Estate Parser</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Argentina Real Estate Parser</p>
+          <h1>Настройте парсер объявлений за пару минут</h1>
+          <p class="subtitle">
+            Сформируйте конфигурацию для аренды или покупки, добавьте фильтры и
+            сразу получите JSON для запуска парсера.
+          </p>
+        </div>
+        <div class="header-card">
+          <h2>Как использовать</h2>
+          <ol>
+            <li>Заполните параметры в форме.</li>
+            <li>Скопируйте JSON и сохраните в файл.</li>
+            <li>Запустите: <code>python src/rentals_parser.py --config ваш_файл.json</code>.</li>
+          </ol>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card">
+          <h2>Источник объявлений</h2>
+          <label class="field">
+            <span>Тип объявлений</span>
+            <select id="listingType">
+              <option value="rent">Аренда</option>
+              <option value="sale">Покупка</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Базовый URL</span>
+            <input id="baseUrl" type="url" placeholder="https://example.com/rentals" />
+          </label>
+          <div class="columns">
+            <label class="field">
+              <span>Параметр страницы</span>
+              <input id="pageParam" type="text" value="page" />
+            </label>
+            <label class="field">
+              <span>Начальная страница</span>
+              <input id="startPage" type="number" min="1" value="1" />
+            </label>
+            <label class="field">
+              <span>Конечная страница</span>
+              <input id="endPage" type="number" min="1" value="1" />
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>CSS-селекторы</h2>
+          <label class="field">
+            <span>Карточка объявления</span>
+            <input id="listingsSelector" type="text" value=".listing-card" />
+          </label>
+          <div class="columns">
+            <label class="field">
+              <span>Заголовок</span>
+              <input id="titleSelector" type="text" value=".listing-card__title" />
+            </label>
+            <label class="field">
+              <span>Цена</span>
+              <input id="priceSelector" type="text" value=".listing-card__price" />
+            </label>
+            <label class="field">
+              <span>Локация</span>
+              <input id="locationSelector" type="text" value=".listing-card__location" />
+            </label>
+          </div>
+          <div class="columns">
+            <label class="field">
+              <span>Ссылка</span>
+              <input id="urlSelector" type="text" value=".listing-card__link" />
+            </label>
+            <label class="field">
+              <span>Атрибут ссылки</span>
+              <input id="urlAttribute" type="text" value="href" />
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Фильтры</h2>
+          <div class="columns">
+            <label class="field">
+              <span>Минимальная цена</span>
+              <input id="minPrice" type="number" min="0" placeholder="300000" />
+            </label>
+            <label class="field">
+              <span>Максимальная цена</span>
+              <input id="maxPrice" type="number" min="0" placeholder="500000" />
+            </label>
+          </div>
+          <label class="field">
+            <span>Ключевые слова в заголовке</span>
+            <input id="titleKeywords" type="text" placeholder="departamento, monoambiente" />
+          </label>
+          <label class="field">
+            <span>Ключевые слова в локации</span>
+            <input id="locationKeywords" type="text" placeholder="palermo, recoleta" />
+          </label>
+        </section>
+
+        <section class="card">
+          <h2>Задержки и выход</h2>
+          <div class="columns">
+            <label class="field">
+              <span>Пауза между страницами (сек.)</span>
+              <input id="sleepSeconds" type="number" min="0" value="2" />
+            </label>
+            <label class="field">
+              <span>Файл вывода</span>
+              <input id="outputPath" type="text" value="output/listings.jsonl" />
+            </label>
+          </div>
+          <label class="field">
+            <span>User-Agent</span>
+            <input
+              id="userAgent"
+              type="text"
+              value="Mozilla/5.0 (compatible; ArgentinaRentalsBot/1.0; +https://example.com/bot)"
+            />
+          </label>
+        </section>
+
+        <section class="card output">
+          <div class="output-header">
+            <h2>Готовая конфигурация</h2>
+            <div class="actions">
+              <button id="copyButton" type="button">Скопировать JSON</button>
+              <button id="downloadButton" type="button">Скачать файл</button>
+            </div>
+          </div>
+          <pre id="configOutput" aria-live="polite"></pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
