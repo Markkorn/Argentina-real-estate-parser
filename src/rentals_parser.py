@@ -31,6 +31,7 @@ class Listing:
     bedrooms: int | None
     bathrooms: int | None
     area_m2: int | None
+    details_text: str
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -69,6 +70,7 @@ class ParserConfig:
     title_keywords_exclude: list[str]
     location_keywords_exclude: list[str]
     property_keywords_include: list[str]
+    pet_keywords_include: list[str]
     min_bedrooms: int | None
     max_bedrooms: int | None
     min_bathrooms: int | None
@@ -107,6 +109,7 @@ class ParserConfig:
             property_keywords_include=[
                 kw.lower() for kw in data.get("property_keywords_include", [])
             ],
+            pet_keywords_include=[kw.lower() for kw in data.get("pet_keywords_include", [])],
             min_bedrooms=data.get("min_bedrooms"),
             max_bedrooms=data.get("max_bedrooms"),
             min_bathrooms=data.get("min_bathrooms"),
@@ -259,9 +262,12 @@ def matches_filters(listing: Listing, config: ParserConfig) -> bool:
         return False
     if has_excluded_keywords(listing.location, config.location_keywords_exclude):
         return False
+    combined_text = f"{listing.title} {listing.location} {listing.details_text}"
     if config.property_keywords_include:
-        combined_text = f"{listing.title} {listing.location}"
         if not has_keywords(combined_text, config.property_keywords_include):
+            return False
+    if config.pet_keywords_include:
+        if not has_keywords(combined_text, config.pet_keywords_include):
             return False
     if listing.bedrooms is not None:
         if config.min_bedrooms is not None and listing.bedrooms < config.min_bedrooms:
@@ -351,8 +357,9 @@ def parse_listings(html: str, config: ParserConfig) -> Iterable[Listing]:
                 href = link.get(config.url_attribute, "")
             url = urljoin(config.base_url, href)
             if title or price or location or url:
+                card_text = card.get_text(" ", strip=True)
                 bedrooms, bathrooms, area_m2 = parse_listing_details(
-                    f"{title} {location}"
+                    f"{title} {location} {card_text}"
                 )
                 yield Listing(
                     title=title,
@@ -363,6 +370,7 @@ def parse_listings(html: str, config: ParserConfig) -> Iterable[Listing]:
                     bedrooms=bedrooms,
                     bathrooms=bathrooms,
                     area_m2=area_m2,
+                    details_text=card_text,
                 )
         return
 
@@ -380,7 +388,10 @@ def parse_listings(html: str, config: ParserConfig) -> Iterable[Listing]:
         href = link_node.attrs.get(config.url_attribute, "") if link_node else ""
         url = urljoin(config.base_url, href)
         if title or price or location or url:
-            bedrooms, bathrooms, area_m2 = parse_listing_details(f"{title} {location}")
+            card_text = card.text()
+            bedrooms, bathrooms, area_m2 = parse_listing_details(
+                f"{title} {location} {card_text}"
+            )
             yield Listing(
                 title=title,
                 price=price,
@@ -390,6 +401,7 @@ def parse_listings(html: str, config: ParserConfig) -> Iterable[Listing]:
                 bedrooms=bedrooms,
                 bathrooms=bathrooms,
                 area_m2=area_m2,
+                details_text=card_text,
             )
 
 

@@ -33,6 +33,8 @@ python -m http.server 8000 --directory web
 
 Если нужно парсить несколько сайтов (и аренду, и покупку), используйте массив `sources` в конфиге. Пример — `config/multi_source_example.json`. Каждому источнику задаются свои селекторы и `listing_type`, а фильтры остаются общими.
 
+Для Argenprop (PH аренда) добавлен пример `config/argenprop_ph_rent.json` с готовыми селекторами.
+
 ## Рекомендуемый вариант при блокировке PyPI
 
 Если доступ к PyPI блокируется прокси, самый простой вариант — запускать локальный прогон с `config/local_config.json`. Он не требует установки зависимостей и подтверждает, что парсер работает на примере HTML‑файла. После этого уже можно настраивать прокси или внутренний индекс Python‑пакетов для реальных сайтов.
@@ -59,6 +61,7 @@ python -m http.server 8000 --directory web
   "title_keywords_exclude": ["temporal"],
   "location_keywords_exclude": [],
   "property_keywords_include": ["departamento", "casa"],
+  "pet_keywords_include": ["mascotas", "pet friendly"],
   "min_bedrooms": 1,
   "max_bedrooms": null,
   "min_bathrooms": null,
@@ -102,6 +105,7 @@ python src/rentals_parser.py --config config/local_config.json
    - `location_keywords_include` — ключевые слова, которые должны встречаться в локации.
    - `title_keywords_exclude` / `location_keywords_exclude` — исключающие слова.
    - `property_keywords_include` — ключевые слова, которые должны встретиться в названии или локации.
+   - `pet_keywords_include` — ключевые слова, указывающие на возможность с животными.
    - `min_bedrooms` / `max_bedrooms`, `min_bathrooms` / `max_bathrooms` — фильтр по количеству комнат/санузлов.
    - `min_area_m2` / `max_area_m2` — фильтр по площади (м²), если она встречается в тексте объявления.
 

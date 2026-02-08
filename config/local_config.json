@@ -21,6 +21,7 @@
   "title_keywords_exclude": [],
   "location_keywords_exclude": [],
   "property_keywords_include": ["departamento"],
+  "pet_keywords_include": [],
   "min_bedrooms": null,
   "max_bedrooms": null,
   "min_bathrooms": null,
