@@ -1,0 +1,33 @@
+{
+  "base_url": "https://www.argenprop.com/ph/alquiler/buenos-aires/2-dormitorios",
+  "page_param": "pagina",
+  "start_page": 1,
+  "end_page": 1,
+  "local_html_path": null,
+  "listing_type": "rent",
+  "listings_selector": "div.listing__item",
+  "title_selector": ".card__title--primary",
+  "price_selector": ".card__price",
+  "location_selector": ".card__address",
+  "url_selector": "a.card",
+  "url_attribute": "href",
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; ArgentinaRentalsBot/1.0; +https://example.com/bot)"
+  },
+  "sleep_seconds": 2,
+  "output_path": "output/argenprop_ph_rent.jsonl",
+  "min_price": null,
+  "max_price": null,
+  "title_keywords_include": [],
+  "location_keywords_include": [],
+  "title_keywords_exclude": [],
+  "location_keywords_exclude": [],
+  "property_keywords_include": ["ph"],
+  "min_bedrooms": 2,
+  "max_bedrooms": null,
+  "min_bathrooms": null,
+  "max_bathrooms": null,
+  "min_area_m2": null,
+  "max_area_m2": null,
+  "pet_keywords_include": ["mascotas", "acepta mascotas", "pet friendly"]
+}

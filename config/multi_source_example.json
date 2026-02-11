@@ -1,0 +1,53 @@
+{
+  "output_path": "output/listings.jsonl",
+  "min_price": 200000,
+  "max_price": 800000,
+  "title_keywords_include": ["departamento", "casa"],
+  "location_keywords_include": ["palermo", "recoleta"],
+  "title_keywords_exclude": ["temporal"],
+  "location_keywords_exclude": [],
+  "property_keywords_include": ["departamento", "casa"],
+  "pet_keywords_include": ["mascotas", "pet friendly"],
+  "min_bedrooms": 1,
+  "max_bedrooms": null,
+  "min_bathrooms": null,
+  "max_bathrooms": null,
+  "min_area_m2": 30,
+  "max_area_m2": null,
+  "sources": [
+    {
+      "base_url": "https://example.com/rentals",
+      "page_param": "page",
+      "start_page": 1,
+      "end_page": 2,
+      "listing_type": "rent",
+      "listings_selector": ".listing-card",
+      "title_selector": ".listing-card__title",
+      "price_selector": ".listing-card__price",
+      "location_selector": ".listing-card__location",
+      "url_selector": ".listing-card__link",
+      "url_attribute": "href",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (compatible; ArgentinaRentalsBot/1.0; +https://example.com/bot)"
+      },
+      "sleep_seconds": 2
+    },
+    {
+      "base_url": "https://example.com/sales",
+      "page_param": "page",
+      "start_page": 1,
+      "end_page": 1,
+      "listing_type": "sale",
+      "listings_selector": ".card",
+      "title_selector": ".card__title",
+      "price_selector": ".card__price",
+      "location_selector": ".card__location",
+      "url_selector": "a.card__link",
+      "url_attribute": "href",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (compatible; ArgentinaRentalsBot/1.0; +https://example.com/bot)"
+      },
+      "sleep_seconds": 2
+    }
+  ]
+}
