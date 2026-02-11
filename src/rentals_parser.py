@@ -427,6 +427,50 @@ def write_listings(path: Path, listings: Iterable[Listing], config: ParserConfig
     return count
 
 
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        rows.append(json.loads(line))
+    return rows
+
+
+def truncate(value: str, width: int) -> str:
+    return value if len(value) <= width else value[: width - 1] + "…"
+
+
+def print_pretty_table(rows: list[dict[str, Any]]) -> None:
+    if not rows:
+        print("No rows found to display.")
+        return
+
+    columns = [
+        ("title", "Title", 42),
+        ("price", "Price", 14),
+        ("location", "Location", 30),
+        ("bedrooms", "Beds", 6),
+        ("bathrooms", "Bath", 6),
+        ("area_m2", "Area", 6),
+        ("url", "URL", 52),
+    ]
+
+    header = " | ".join(truncate(label, width).ljust(width) for _, label, width in columns)
+    separator = "-+-".join("-" * width for _, _, width in columns)
+    print(header)
+    print(separator)
+
+    for row in rows:
+        values = []
+        for key, _, width in columns:
+            raw = row.get(key, "")
+            value = "" if raw is None else str(raw)
+            values.append(truncate(value, width).ljust(width))
+        print(" | ".join(values))
+
+
 def run_parser(config: ParserConfig) -> int:
     output_path = Path(config.output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -468,6 +512,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=Path("config/example_config.json"),
         help="Path to JSON config with selectors and crawl settings.",
     )
+    parser.add_argument(
+        "--pretty",
+        action="store_true",
+        help="Print results as a readable table after parsing (reads JSONL output files).",
+    )
     return parser
 
 
@@ -482,6 +531,12 @@ def main() -> None:
         output_paths.add(config.output_path)
     outputs = ", ".join(sorted(output_paths))
     print(f"Saved {total} listings to {outputs}")
+
+    if args.pretty:
+        for output in sorted(output_paths):
+            output_path = Path(output)
+            print(f"\nPretty output for: {output_path}")
+            print_pretty_table(read_jsonl(output_path))
 
 
 if __name__ == "__main__":

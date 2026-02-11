@@ -77,6 +77,12 @@ python -m http.server 8000 --directory web
 python src/rentals_parser.py --config config/example_config.json
 ```
 
+Красивый вывод в таблице прямо в консоли:
+
+```bash
+python src/rentals_parser.py --config config/example_config.json --pretty
+```
+
 Вывод будет сохранён в `output/listings.jsonl`.
 
 ## Быстрый локальный прогон
